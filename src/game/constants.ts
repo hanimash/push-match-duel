@@ -13,7 +13,7 @@ export const CATEGORIES: readonly Category[] = [
   { id: 'plants',    name: 'Plants',    emoji: '🌿', symbols: ['🌸', '🌻', '🌴', '🌵', '🍄', '🌹'] },
   { id: 'fruits',    name: 'Fruits',    emoji: '🍎', symbols: ['🍎', '🍊', '🍋', '🍇', '🍓', '🍑'] },
   { id: 'sports',    name: 'Sports',    emoji: '⚽', symbols: ['⚽', '🏀', '🏈', '⚾', '🎾', '🏐'] },
-  { id: 'space',     name: 'Space',     emoji: '🚀', symbols: ['🌙', '⭐', '🪐', '☀️', '☄️', '🚀'] },
+  { id: 'space',     name: 'Space',     emoji: '🚀', symbols: ['🌙', '🌟', '🪐', '☀️', '☄️', '🚀'] },
   { id: 'transport', name: 'Transport', emoji: '🚗', symbols: ['🚗', '✈️', '🚢', '🚂', '🚁', '🏍️'] },
   { id: 'music',     name: 'Music',     emoji: '🎵', symbols: ['🎸', '🎹', '🎺', '🎻', '🥁', '🎷'] },
 ]

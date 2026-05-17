@@ -32,7 +32,7 @@ function tilesToBoard(tiles: Tile[]): Board {
 }
 
 function createStartTile(owner: PlayerId): Tile {
-  return { id: 'start', owner, symbol: '⭐', revealed: true, isStartTile: true }
+  return { id: 'start', owner, symbol: '💠', revealed: true, isStartTile: true }
 }
 
 function createInitialState(config: GameConfig): GameState {
