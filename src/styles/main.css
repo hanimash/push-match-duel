@@ -1,5 +1,6 @@
 /* ══════════════ Reset ══════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { user-select: none; -webkit-user-select: none; }
 
 /* ══════════════ Variables ══════════════ */
 :root {
@@ -926,18 +927,39 @@ body {
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
 }
 
+.push-btn--p1:not(:disabled):not(.push-btn--freeze):not(.push-btn--frozen) {
+  color: #fb7185;
+  border-color: rgba(225,29,72,0.5);
+  animation: push-pulse-p1 1.6s ease-in-out infinite;
+}
 .push-btn--p1:not(:disabled):hover {
   background: var(--c-p1);
   color: #fff;
   border-color: var(--c-p1);
   transform: translateY(3px);
+  animation: none;
 }
 
+.push-btn--p2:not(:disabled):not(.push-btn--freeze):not(.push-btn--frozen) {
+  color: #34d399;
+  border-color: rgba(5,150,105,0.5);
+  animation: push-pulse-p2 1.6s ease-in-out infinite;
+}
 .push-btn--p2:not(:disabled):hover {
   background: var(--c-p2);
   color: #fff;
   border-color: var(--c-p2);
   transform: translateY(3px);
+  animation: none;
+}
+
+@keyframes push-pulse-p1 {
+  0%, 100% { box-shadow: 0 0 6px rgba(225,29,72,0.2); border-color: rgba(225,29,72,0.4); }
+  50%       { box-shadow: 0 0 14px rgba(225,29,72,0.6); border-color: rgba(225,29,72,0.9); }
+}
+@keyframes push-pulse-p2 {
+  0%, 100% { box-shadow: 0 0 6px rgba(5,150,105,0.2); border-color: rgba(5,150,105,0.4); }
+  50%       { box-shadow: 0 0 14px rgba(5,150,105,0.6); border-color: rgba(5,150,105,0.9); }
 }
 
 .push-btn:disabled { opacity: 0.15; cursor: not-allowed; }
@@ -1413,6 +1435,149 @@ body {
 .btn-lang--active {
   background: #1e293b;
   color: #e2e8f0;
+}
+
+/* ══════════════ AI Ability Notification Modal ══════════════ */
+.ai-notif-overlay { z-index: 300; }
+
+.ai-notif-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 36px;
+  max-width: 340px;
+  width: 90vw;
+  border: 2px solid var(--c-p2);
+  box-shadow: 0 0 40px rgba(5,150,105,0.45), 0 12px 48px rgba(0,0,0,0.7);
+}
+
+.ai-notif-robot { font-size: 2.4rem; }
+
+.ai-notif-used {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.ai-notif-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #1e293b;
+  border: 2px solid #6ee7b7;
+  border-radius: 16px;
+  padding: 20px 28px;
+  width: 100%;
+}
+
+.ai-notif-card-icon { font-size: 2.6rem; }
+
+.ai-notif-card-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #6ee7b7;
+  text-align: center;
+}
+
+.ai-notif-card-desc {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.ai-notif-ok {
+  margin-top: 4px;
+  min-width: 140px;
+  background: var(--c-p2);
+}
+
+/* ══════════════ How to Play Modal ══════════════ */
+.htp-box {
+  position: relative;
+  background: #0d1624;
+  border: 2px solid #1e293b;
+  border-radius: 24px;
+  padding: 36px 40px 32px;
+  max-width: 500px;
+  width: 92vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+  animation: modal-pop 0.35s cubic-bezier(0.175,0.885,0.32,1.3) both;
+}
+
+.htp-close {
+  position: absolute;
+  inset-block-start: 14px;
+  inset-inline-end: 16px;
+  background: transparent;
+  border: none;
+  color: #475569;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.htp-close:hover { color: #e2e8f0; background: #1e293b; }
+
+.htp-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #fbbf24;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.htp-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.htp-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 14px;
+  background: #111c2e;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+}
+
+.htp-step-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.htp-step-body { display: flex; flex-direction: column; gap: 4px; }
+
+.htp-step-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.htp-step-desc {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.htp-btn-close { align-self: center; padding: 10px 40px; }
+
+.btn-help {
+  font-weight: 900;
+  font-size: 1rem;
+  min-width: 32px;
 }
 
 /* ══════════════ Mobile (< 700px) ══════════════ */

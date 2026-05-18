@@ -246,11 +246,28 @@ export function applyRotateRow(row: number) {
 let aiTimeout: ReturnType<typeof setTimeout> | null = null
 let aiLastCol = -1
 let aiConsecCount = 0
+let notifTimer: ReturnType<typeof setTimeout> | null = null
+
+export const aiAbilityNotification = ref<AbilityId | null>(null)
 
 function clearAi() {
   if (aiTimeout) { clearTimeout(aiTimeout); aiTimeout = null }
   aiLastCol = -1
   aiConsecCount = 0
+}
+
+function showAiNotification(id: AbilityId) {
+  if (notifTimer) clearTimeout(notifTimer)
+  aiAbilityNotification.value = id
+  // Does NOT auto-clear — player must press "Got it" via dismissAiAbility()
+}
+
+export function dismissAiAbility() {
+  aiAbilityNotification.value = null
+  // Resume AI push after human acknowledges
+  if (state.game && !state.game.winner && state.game.currentPlayer === 'P2' && aiEnabled.value) {
+    aiTimeout = setTimeout(aiPush, 600)
+  }
 }
 
 // Returns true when a column is fully filled with P2 tiles of the same symbol —
@@ -408,8 +425,10 @@ function aiUseAbility() {
       applySwapClick(pair[1][0], pair[1][1])
     } else {
       cancelAbility()
+      return
     }
   }
+  showAiNotification(ab)
 }
 
 function aiPush() {
@@ -455,10 +474,9 @@ function aiMove() {
   if (!game || game.winner || game.currentPlayer !== 'P2') return
   if (!aiEnabled.value || !game.currentTile['P2']) return
 
-  // Use stored ability first, then push after a visible pause
+  // Use stored ability first — AI push is deferred until player dismisses the notification
   if (game.abilities['P2'] !== null) {
     aiUseAbility()
-    aiTimeout = setTimeout(aiPush, 750)
     return
   }
 

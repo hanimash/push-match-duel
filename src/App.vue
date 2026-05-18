@@ -5,16 +5,19 @@ import PlayerPanel from './components/PlayerPanel.vue'
 import TileView from './components/TileView.vue'
 import SetupScreen from './components/SetupScreen.vue'
 import RewardModal from './components/RewardModal.vue'
-import { state, newGame, executeMove, aiEnabled, playerNames, claimReward, activateAbility, cancelAbility } from './game/gameState'
+import HowToPlayModal from './components/HowToPlayModal.vue'
+import { state, newGame, executeMove, aiEnabled, playerNames, claimReward, activateAbility, cancelAbility, aiAbilityNotification, dismissAiAbility } from './game/gameState'
 import { muted } from './game/sounds'
 import { t, currentLang, setLang } from './i18n'
 import type { Lang } from './i18n'
 import type { GameConfig, PlayerId } from './game/types'
 import type { AbilityId } from './game/abilities'
+import { ABILITIES } from './game/abilities'
 
 const LANGS: Lang[] = ['ar', 'en', 'de']
 
-const layout = ref<'vertical' | 'horizontal'>('horizontal')
+const layout   = ref<'vertical' | 'horizontal'>('horizontal')
+const showHelp = ref(false)
 const game   = computed(() => state.game)
 
 function applyAutoLayout() {
@@ -58,9 +61,20 @@ function onRewardSkip() {
 
 function resetToSetup() { state.game = null }
 
+const aiNotif = computed(() => {
+  const id = aiAbilityNotification.value
+  if (!id) return null
+  return {
+    icon: ABILITIES[id].icon,
+    name: t.value.abilities[id].name,
+    desc: t.value.abilities[id].desc,
+  }
+})
+
 function canPush(id: 'P1' | 'P2'): boolean {
   if (!game.value) return false
   if (id === 'P2' && aiEnabled.value) return false
+  if (aiAbilityNotification.value !== null) return false
   return (
     game.value.currentPlayer === id &&
     game.value.currentTile[id] !== null &&
@@ -115,9 +129,31 @@ function isAbilityActiveFor(id: PlayerId): boolean {
           @click="muted = !muted">
           {{ muted ? '🔇' : '🔊' }}
         </button>
+        <button class="btn-sm btn-help" @click="showHelp = true">?</button>
         <button v-if="game" class="btn-sm" @click="resetToSetup">↺</button>
       </div>
     </header>
+
+    <!-- ── How to Play Modal ── -->
+    <Transition name="modal">
+      <HowToPlayModal v-if="showHelp" @close="showHelp = false" />
+    </Transition>
+
+    <!-- ── AI Ability Notification Modal (blocking) ── -->
+    <Transition name="modal">
+      <div v-if="aiNotif" class="modal-overlay ai-notif-overlay">
+        <div class="modal-box ai-notif-box">
+          <div class="ai-notif-robot">🤖</div>
+          <p class="ai-notif-used">{{ t.aiUsed }}</p>
+          <div class="ai-notif-card">
+            <div class="ai-notif-card-icon">{{ aiNotif.icon }}</div>
+            <div class="ai-notif-card-name">{{ aiNotif.name }}</div>
+            <div class="ai-notif-card-desc">{{ aiNotif.desc }}</div>
+          </div>
+          <button class="btn-main ai-notif-ok" @click="dismissAiAbility()">{{ t.gotIt }}</button>
+        </div>
+      </div>
+    </Transition>
 
     <!-- ── Setup Screen ── -->
     <SetupScreen v-if="!game" @start="handleStart" />

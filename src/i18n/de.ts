@@ -46,9 +46,48 @@ export const de: Translations = {
   completedCols: (n) => `${n} / 6 Spalten abgeschlossen`,
   homeBtn:       '↩ Menü',
 
+  aiUsed:  'Computer nutzte',
+  gotIt:   'Verstanden! ✓',
   abilities: {
     freeze_column: { name: 'Spalte einfrieren', desc: 'Wähle eine Gegnerspalte — für einen vollen Zug gesperrt' },
     swap_tiles:    { name: 'Steine tauschen',   desc: 'Tausche zwei Steine auf dem Gegnerfeld' },
     rotate_row:    { name: 'Reihe drehen',      desc: 'Wähle eine Gegnerreihe — verschiebt sich einen Schritt' },
+  },
+
+  howToPlay: {
+    title:    'Spielanleitung',
+    closeBtn: 'Verstanden! ▶',
+    steps: [
+      {
+        icon:  '🎯',
+        title: 'Ziel',
+        desc:  'Vervollständige alle 6 Spalten deines Spielfelds — jede Spalte muss 4 Steine mit demselben Symbol enthalten.',
+      },
+      {
+        icon:  '💠',
+        title: 'Start',
+        desc:  'Ein Würfelwurf entscheidet, wer beginnt. Der Gewinner erhält den Startstein.',
+      },
+      {
+        icon:  '↓',
+        title: 'Schieben',
+        desc:  'Schiebe in deinem Zug deinen aktuellen Stein in eine beliebige Spalte — er tritt oben ein und der unterste Stein wird ausgeworfen.',
+      },
+      {
+        icon:  '🔄',
+        title: 'Zugwechsel',
+        desc:  'Der ausgeworfene Stein wird sofort aufgedeckt. Gehört er dem Gegner, wechselt der Zug; gehört er dir, spielst du weiter.',
+      },
+      {
+        icon:  '🏆',
+        title: 'Fähigkeitskarten',
+        desc:  'Vervollständige zum ersten Mal 2 Spalten für eine Sonderfähigkeit: Spalte einfrieren, Steine tauschen oder eine Reihe drehen.',
+      },
+      {
+        icon:  '🥇',
+        title: 'Sieg',
+        desc:  'Wer zuerst alle 6 Spalten vervollständigt, gewinnt! Du gewinnst auch, wenn alle Spalten des Gegners gesperrt sind.',
+      },
+    ],
   },
 }

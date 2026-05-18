@@ -23,7 +23,7 @@ Two players compete on separate boards:
 - 🌿 Plants — `🌸 🌻 🌴 🌵 🍄 🌹`
 - 🍎 Fruits — `🍎 🍊 🍋 🍇 🍓 🍑`
 - ⚽ Sports — `⚽ 🏀 🏈 ⚾ 🎾 🏐`
-- 🚀 Space — `🌙 ⭐ 🪐 ☀️ ☄️ 🚀`
+- 🚀 Space — `🌙 🌟 🪐 ☀️ ☄️ 🚀`
 - 🚗 Transport — `🚗 ✈️ 🚢 🚂 🚁 🏍️`
 - 🎵 Music — `🎸 🎹 🎺 🎻 🥁 🎷`
 
@@ -48,7 +48,7 @@ type Tile = {
   owner: PlayerId;       // 'P1' | 'P2'
   symbol: string;        // emoji character
   revealed: boolean;
-  isStartTile?: boolean; // ⭐ special first tile
+  isStartTile?: boolean; // 💠 special first tile
 };
 ```
 
@@ -59,7 +59,7 @@ type Tile = {
 1. Create 48 tiles (24 per player, each symbol repeated 4×).
 2. Shuffle all 48 tiles.
 3. Distribute first 24 to P1's board, last 24 to P2's board.
-4. Create one special **⭐ Start Tile**.
+4. Create one special **💠 Start Tile**.
 5. Roll to decide who goes first — that player receives the start tile as their current tile.
 
 ---
@@ -211,8 +211,9 @@ src/
 │   ├── GameBoard.vue         # Board grid, push buttons, freeze/swap/rotate targeting
 │   ├── PlayerPanel.vue       # Player name, done count, ability card button
 │   ├── TileView.vue          # Single tile with flip + burst animations
-│   ├── SetupScreen.vue       # Game configuration screen
-│   └── RewardModal.vue       # Flip-card reward selection modal
+│   ├── SetupScreen.vue       # Game configuration screen (category dropdowns, AI config)
+│   ├── RewardModal.vue       # Flip-card reward selection modal
+│   └── HowToPlayModal.vue    # Step-by-step instructions overlay
 │
 ├── game/
 │   ├── types.ts              # PlayerId, Tile, Board, GameState, GameConfig types
@@ -254,7 +255,9 @@ P2 zone on top, ejected strip in the middle, P1 zone at the bottom. Tile sizes c
 
 ## 13. Internationalization
 
-Three languages supported: **Arabic** (default, RTL), **English**, **German**.
+Three languages supported: **Arabic** (RTL), **English**, **German**.
+
+The default language is **auto-detected** from `navigator.languages` — the first supported language in the browser's preference list is used; falls back to English if none match.
 
 Language switching is instant — `currentLang` is a `ref`, `t` is a `computed` that returns the matching translation object. `document.dir` and `document.documentElement.lang` are updated on switch.
 
@@ -269,6 +272,7 @@ Language switching is instant — `currentLang` is a `ref`, `t` is a `computed` 
 | Column done burst | Column first completes | `col-done-burst` (one-shot) |
 | Column done glow | Column is complete | `pulse-gold` (infinite) |
 | Active zone pulse | Player zone is active turn | `pulse-p1` / `pulse-p2` |
+| Push button pulse | Button is active and pressable | `push-pulse-p1` / `push-pulse-p2` |
 | Ability card | Earned ability appears | `ability-pop-enter` |
 | Reward card flip | Card selected | CSS `rotateY(180deg)` |
 | Winner modal | Game ends | `modal-pop` + staggered `slide-up` |
@@ -323,8 +327,9 @@ These must always hold during gameplay:
 3. Push buttons are disabled when it is not the player's turn
 4. Push buttons are disabled when the player has no current tile
 5. No move is possible while a reward modal is open (`pendingReward !== null`)
-6. Completed columns cannot be targeted by Freeze (they are already locked)
-7. Each player receives at most **one** reward card per game
+6. No move is possible while the AI ability notification is showing (`aiAbilityNotification !== null`)
+7. Completed columns cannot be targeted by Freeze (they are already locked)
+8. Each player receives at most **one** reward card per game
 
 ---
 
@@ -335,6 +340,8 @@ These must always hold during gameplay:
 | All non-done columns frozen | Deadlock detected → opponent wins |
 | AI pushing same column repeatedly | Counter resets to random after 6 consecutive pushes |
 | AI earns reward during its turn | Auto-claimed after 900 ms, then AI continues |
+| AI uses an ability card | Blocking modal shown — human must press "Got it" before game resumes |
 | Player changes category in setup | AI randomly re-picks a different category |
 | Screen resized below 700 px | Layout switches to vertical automatically |
 | RTL language selected | `document.dir = 'rtl'`, all logical CSS properties adapt |
+| Browser language not supported | Falls back to English |

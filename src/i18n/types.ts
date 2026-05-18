@@ -1,5 +1,11 @@
 import type { AbilityId } from '../game/abilities'
 
+export interface HowToPlayStep {
+  icon: string
+  title: string
+  desc: string
+}
+
 export interface Translations {
   // Header
   turnOf:         (name: string) => string
@@ -41,5 +47,13 @@ export interface Translations {
   completedCols:  (count: number) => string
   homeBtn:        string
   // Abilities
+  aiUsed:    string
+  gotIt:     string
   abilities: Record<AbilityId, { name: string; desc: string }>
+  // How to play
+  howToPlay: {
+    title:    string
+    closeBtn: string
+    steps:    readonly HowToPlayStep[]
+  }
 }
