@@ -7,7 +7,18 @@ import type { Translations } from './types'
 export type Lang = 'ar' | 'en' | 'de'
 export type { Translations }
 
-export const currentLang = ref<Lang>('ar')
+function detectLang(): Lang {
+  const supported: Lang[] = ['ar', 'en', 'de']
+  for (const pref of navigator.languages ?? [navigator.language]) {
+    const code = pref.split('-')[0].toLowerCase() as Lang
+    if (supported.includes(code)) return code
+  }
+  return 'en'
+}
+
+const initial = detectLang()
+
+export const currentLang = ref<Lang>(initial)
 
 const map: Record<Lang, Translations> = { ar, en, de }
 
@@ -21,8 +32,8 @@ export function setLang(lang: Lang) {
   }
 }
 
-// Set RTL for default Arabic locale on module load
+// Apply dir/lang for the detected default
 if (typeof document !== 'undefined') {
-  document.dir = 'rtl'
-  document.documentElement.lang = 'ar'
+  document.dir = initial === 'ar' ? 'rtl' : 'ltr'
+  document.documentElement.lang = initial
 }
