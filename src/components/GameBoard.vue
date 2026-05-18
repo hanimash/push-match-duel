@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import TileView from './TileView.vue'
 import type { Board, Tile, PlayerId, ActiveAbilityState } from '../game/types'
-import { applyFreeze, applySwapClick, applyRotateRow } from '../game/gameState'
+import { applyFreeze, applySwapClick, applyRotateRow, aiPushSignal } from '../game/gameState'
 
 const props = defineProps<{
   playerId:      PlayerId
@@ -13,6 +13,27 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{ push: [colIndex: number] }>()
+
+interface EjectGhost {
+  col:     number
+  symbol:  string
+  revealed: boolean
+  tileCls: string
+}
+const ejectGhost = ref<EjectGhost | null>(null)
+let ghostTimer: ReturnType<typeof setTimeout> | null = null
+
+function triggerGhost(col: number, symbol: string, revealed: boolean, tileCls: string) {
+  if (ghostTimer) clearTimeout(ghostTimer)
+  ejectGhost.value = { col, symbol, revealed, tileCls }
+  ghostTimer = setTimeout(() => { ejectGhost.value = null }, 650)
+}
+
+// AI pushes don't go through onPushOrFreeze — watch the signal instead
+watch(aiPushSignal, (sig) => {
+  if (!sig || props.playerId !== 'P2') return
+  triggerGhost(sig.col, sig.symbol, sig.revealed, sig.tileCls)
+})
 
 const ROWS = 4
 const COLS = 6
@@ -56,6 +77,17 @@ const swapFirst = computed<[number, number] | null>(() => {
 
 function onPushOrFreeze(col: number) {
   if (freezeMode.value) { applyFreeze(col); return }
+
+  // Capture the bottom tile BEFORE the board updates
+  if (props.board) {
+    const bt = props.board[ROWS - 1][col]
+    triggerGhost(
+      col,
+      bt.symbol,
+      bt.revealed,
+      bt.revealed ? (bt.isStartTile ? 'tile--start' : `tile--${bt.owner.toLowerCase()}`) : 'tile--hidden'
+    )
+  }
   emit('push', col)
 }
 
@@ -130,6 +162,14 @@ function isSwapSelected(row: number, col: number): boolean {
           </div>
         </div>
       </template>
+
+      <!-- Ghost tile: animates the ejected tile flying out from the bottom -->
+      <div
+        v-if="ejectGhost"
+        class="tile tile--revealed eject-ghost-tile"
+        :class="ejectGhost.tileCls"
+        :style="{ '--eject-col': ejectGhost.col }"
+      >{{ ejectGhost.revealed ? ejectGhost.symbol : '◆' }}</div>
     </div>
 
   </div>

@@ -250,6 +250,14 @@ let notifTimer: ReturnType<typeof setTimeout> | null = null
 
 export const aiAbilityNotification = ref<AbilityId | null>(null)
 
+export interface AiPushSignal {
+  col:     number
+  symbol:  string
+  revealed: boolean
+  tileCls: string
+}
+export const aiPushSignal = ref<AiPushSignal | null>(null)
+
 function clearAi() {
   if (aiTimeout) { clearTimeout(aiTimeout); aiTimeout = null }
   aiLastCol = -1
@@ -445,6 +453,17 @@ function aiPush() {
   }
 
   let col = pickBestColumn()
+
+  // Signal the eject animation BEFORE the board updates
+  const bt = game.boards['P2'][ROWS - 1][col]
+  aiPushSignal.value = {
+    col,
+    symbol:   bt.symbol,
+    revealed: bt.revealed,
+    tileCls:  bt.revealed
+      ? (bt.isStartTile ? 'tile--start' : `tile--${bt.owner.toLowerCase()}`)
+      : 'tile--hidden',
+  }
 
   if (col === aiLastCol) {
     aiConsecCount++
