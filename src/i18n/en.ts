@@ -7,8 +7,8 @@ export const en: Translations = {
   muteLabel:     'Mute sound',
   unmuteLabel:   'Unmute sound',
   ejectedLabel:  'Ejected',
-  aiBot:         'Computer',
-  aiHuman:       'Human',
+  aiBot:         'Play with Human',
+  aiHuman:       'Play with Computer',
   turnBadge:     'Active',
   cancelAbility: 'Cancel',
 

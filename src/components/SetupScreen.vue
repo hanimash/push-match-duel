@@ -27,7 +27,7 @@ const aiCategory = computed(() => CATEGORIES.find(c => c.id === aiCatId.value)!)
 const p1Cat      = computed(() => CATEGORIES.find(c => c.id === p1CatId.value)!)
 const p2Cat      = computed(() => CATEGORIES.find(c => c.id === p2CatId.value)!)
 const p1Label    = computed(() => t.value.player1Default)
-const p2Label  = computed(() => mode.value === 'pvc' ? t.value.aiName : t.value.player2Default)
+const p2Label    = computed(() => t.value.player2Default)
 
 type DrawPhase = 'setup' | 'rolling' | 'done'
 const drawPhase   = ref<DrawPhase>('setup')
@@ -61,9 +61,7 @@ function launch() {
     p2Symbols:    [...p2Cat.symbols],
     firstPlayer:  firstPlayer.value,
     p1Name:       p1Name.value.trim() || t.value.player1Default,
-    p2Name:       mode.value === 'pvc'
-                    ? t.value.aiName
-                    : (p2Name.value.trim() || t.value.player2Default),
+    p2Name:       p2Name.value.trim() || t.value.player2Default,
     aiDifficulty: difficulty.value,
   })
 }
@@ -117,7 +115,7 @@ function launch() {
               <input v-model="p1Name" class="name-input name-input--p1" maxlength="20"
                      :placeholder="t.player1Default" />
             </div>
-            <div v-if="mode === 'pvp'" class="name-field name-field--p2">
+            <div class="name-field name-field--p2">
               <label class="name-label setup-label--p2">{{ p2Label }}</label>
               <input v-model="p2Name" class="name-input name-input--p2" maxlength="20"
                      :placeholder="t.player2Default" />

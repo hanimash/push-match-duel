@@ -10,6 +10,8 @@ const props = defineProps<{
   canPush:       boolean
   activeAbility?: ActiveAbilityState | null
   frozenCols?:   number[]
+  pushArrow?:    string
+  showColLabel?: boolean
 }>()
 
 const emit = defineEmits<{ push: [colIndex: number] }>()
@@ -38,6 +40,11 @@ watch(aiPushSignal, (sig) => {
 const ROWS = 4
 const COLS = 6
 const COL_LABELS = ['A', 'B', 'C', 'D', 'E', 'F']
+
+// P2's board is read from the opposite end, so column labels run F→A on screen
+const pushColLabels = computed(() =>
+  props.playerId === 'P2' ? [...COL_LABELS].reverse() : COL_LABELS
+)
 
 function emptyTile(r: number, c: number): Tile {
   return { id: `e-${r}-${c}`, owner: 'P1', symbol: '', revealed: false }
@@ -125,7 +132,13 @@ function isSwapSelected(row: number, col: number): boolean {
         ]"
         :disabled="(!canPush && !freezeMode) || frozenSet.has(col - 1)"
         @click="onPushOrFreeze(col - 1)"
-      >{{ freezeMode ? '❄️' : frozenSet.has(col - 1) ? '❄️' : '↓' }}</button>
+      ><template v-if="freezeMode || frozenSet.has(col - 1)">❄️</template>
+        <span v-else-if="props.showColLabel" class="push-btn-inner">
+          <span class="push-btn-col">{{ pushColLabels[col - 1] }}</span>
+          <span class="push-btn-arr">{{ props.pushArrow ?? '↓' }}</span>
+        </span>
+        <template v-else>{{ props.pushArrow ?? '↓' }}</template>
+      </button>
     </div>
 
     <!-- Board rows with row labels -->

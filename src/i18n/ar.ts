@@ -7,8 +7,8 @@ export const ar: Translations = {
   muteLabel:     'كتم الصوت',
   unmuteLabel:   'تفعيل الصوت',
   ejectedLabel:  'خرجت',
-  aiBot:         'كمبيوتر',
-  aiHuman:       'بشري',
+  aiBot:         'العب مع إنسان',
+  aiHuman:       'العب مع كمبيوتر',
   turnBadge:     'دوره',
   cancelAbility: 'إلغاء',
 

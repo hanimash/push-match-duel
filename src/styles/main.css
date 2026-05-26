@@ -34,14 +34,87 @@ body {
   padding: 10px 20px;
   border-bottom: 1px solid #1e293b;
   flex-shrink: 0;
+  gap: 8px;
 }
 
-.game-header h1 { font-size: 1.4rem; letter-spacing: 3px; }
+.header-title {
+  font-size: 1.4rem;
+  letter-spacing: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+}
+
+/* Desktop: show utils, hide kebab */
+.btn-kebab { display: none; }
+.header-utils { display: flex; align-items: center; gap: 8px; }
+
+/* ── Mobile menu ── */
+.mobile-menu-backdrop {
+  position:   fixed;
+  inset:      0;
+  z-index:    140;
+}
+.mobile-menu {
+  position:       fixed;
+  top:            52px;
+  inset-inline-end: 0;
+  z-index:        150;
+  background:     #0d1624;
+  border:         1px solid #1e293b;
+  border-start-start-radius: 16px;
+  border-end-start-radius:   16px;
+  border-end-end-radius:     0;
+  border-start-end-radius:   0;
+  padding:        10px 8px;
+  min-width:      200px;
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+  box-shadow:     -4px 4px 24px rgba(0,0,0,0.65);
+}
+.mobile-menu-langs {
+  display:    flex;
+  gap:        6px;
+  padding:    6px 8px 8px;
+}
+.mobile-menu-sep {
+  height:     1px;
+  background: #1e293b;
+  margin:     4px 0;
+}
+.mobile-menu-item {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  padding:     10px 12px;
+  border:      none;
+  background:  transparent;
+  color:       #e2e8f0;
+  border-radius: 8px;
+  cursor:      pointer;
+  font-size:   0.88rem;
+  text-align:  start;
+  width:       100%;
+  transition:  background 0.15s;
+}
+.mobile-menu-item:hover,
+.mobile-menu-item:active  { background: #1e293b; }
+.mobile-menu-item--danger { color: #f87171; }
+
+/* Menu slide-down animation */
+.menu-drop-enter-active, .menu-drop-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.menu-drop-enter-from, .menu-drop-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 /* ══════════════ Turn indicator ══════════════ */
@@ -401,23 +474,23 @@ body {
 }
 
 /*
- * Vertical = tablet/phone face-to-face mode.
- * Tiles shrink to fit both boards + chrome in exactly one viewport height.
+ * Vertical = phone face-to-face mode. Two boards + center scoreboard strip.
  *
- * Formula:
- *   height overhead ≈ header(52) + panels×2(56) + push-rows×2(34)
- *                   + col-label-rows×2(22) + ejected-strip(52) + padding(40)
- *                   ≈ 368px
- *   8 tile rows + 6 inter-tile gaps (gap=4px) → 8t + 24 ≤ 100svh - 368
- *   → tile = (100svh - 392px) / 8
+ * Overhead estimate:
+ *   header(42) + push-rows×2(36×2=72) + col-label-rows×2(24×2=48)
+ *   + ejected-strip(~115) + zone-padding×2(6×2=12) + game-area-padding(24)
+ *   ≈ 313px → use 360px conservatively (accounts for gaps, borders, etc.)
  *
- *   width constraint: 22(label)+8(gap) + 6t + 5×4(gaps) ≤ 100vw - 24(padding)
- *   → tile ≤ (100vw - 74px) / 6
+ *   8 tile rows + 7 inter-tile gaps (gap=4px) → 8t + 28 ≤ 100svh - 360
+ *   → tile = (100svh - 388px) / 8
+ *
+ *   width constraint: 22(label)+8(gap) + 6t + 5×4(gaps) ≤ 100vw - 20(padding)
+ *   → tile ≤ (100vw - 70px) / 6
  */
 .layout--vertical {
   --tile: min(
-    clamp(32px, calc((100svh - 392px) / 8), 84px),
-    calc((100vw - 74px) / 6)
+    clamp(30px, calc((100svh - 388px) / 8), 84px),
+    calc((100vw - 70px) / 6)
   );
   --gap:  4px;
   --rad:  8px;
@@ -427,15 +500,50 @@ body {
 .layout--vertical .game-area--vertical {
   height: calc(100svh - 52px);
   overflow: hidden;
-  padding: 0 8px;
-  justify-content: space-between;
+  padding: 8px 8px 20px;
+  justify-content: center;
+  gap: 6px;
   flex: unset;
 }
 
-/* Tighter zones */
+/* Compact push buttons in vertical mode */
+.layout--vertical .push-btn { height: 40px; font-size: 1.1rem; }
+
+/* Letter + arrow stacked inside push button */
+.push-btn-inner {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  line-height:    1;
+  gap:            1px;
+}
+.push-btn-col {
+  font-size:      0.48rem;
+  font-weight:    900;
+  letter-spacing: 0.8px;
+  opacity:        0.75;
+}
+.push-btn-arr { font-size: 1rem; }
+
+/* P2: arrow on top, letter below — mirrors naturally for face-to-face reading */
+.layout--vertical .player-zone--p2 .push-btn-inner {
+  flex-direction: column-reverse;
+}
+/* PvP: rotate only the letter so P2 can read it — arrow stays pointing toward the board */
+.mode--pvp.layout--vertical .player-zone--p2 .push-btn-col {
+  transform: rotate(180deg);
+}
+
+/* Zones absorb all remaining height so center strip has no floating gap */
 .layout--vertical .game-area--vertical .player-zone {
+  flex: 1;
+  min-height: 0;
   gap: 4px;
   padding: 3px 0 !important;
+}
+/* P2 zone: push content toward center (board near P2's edge, labels near center) */
+.layout--vertical .game-area--vertical .player-zone--p2 {
+  justify-content: flex-end;
 }
 
 /* Compact ejected strip (vertical layout) */
@@ -451,15 +559,6 @@ body {
   font-size: 1.5rem;
   border-radius: 9px;
 }
-.layout--vertical .center-tile-wrap .tile,
-.layout--vertical .center-tile-ghost {
-  width: 52px;
-  height: 52px;
-  font-size: 1.5rem;
-  border-radius: 9px;
-}
-.layout--vertical .center-turn-label { font-size: 0.6rem; }
-.layout--vertical .ejected-strip .strip-divider { height: 52px; }
 
 /* Compact player panel */
 .layout--vertical .player-panel {
@@ -1031,6 +1130,13 @@ body {
   box-shadow: 0 0 10px rgba(5,150,105,0.4);
 }
 
+/* Compact AI toggle inside header-utils */
+.btn-ai--sm {
+  padding: 5px 10px;
+  font-size: 0.82rem;
+  border-radius: 8px;
+}
+
 /* ══════════════ Done-column tile highlight ══════════════ */
 .tile--col-done {
   box-shadow: 0 0 0 3px gold, 0 0 12px rgba(255,215,0,0.5);
@@ -1465,6 +1571,7 @@ body {
   color: #e2e8f0;
 }
 
+
 /* ══════════════ AI Ability Notification Modal ══════════════ */
 .ai-notif-overlay { z-index: 300; }
 
@@ -1608,14 +1715,136 @@ body {
   min-width: 32px;
 }
 
-/* ══════════════ Mobile (< 700px) ══════════════ */
+/* ══════════════ Mobile / Vertical layout ══════════════ */
+.layout--vertical .game-header  { padding: 6px 10px; }
+.layout--vertical .header-title { font-size: 0.88rem; letter-spacing: 1px; }
+.layout--vertical .header-right { gap: 6px; }
+.layout--vertical .turn-indicator { font-size: 0.7rem; padding: 4px 10px; }
+
+/* Swap desktop utils for kebab on mobile */
+.layout--vertical .header-utils  { display: none; }
+.layout--vertical .btn-kebab     { display: flex; align-items: center; justify-content: center; font-size: 1.2rem; padding: 4px 10px; }
+/* Turn indicator lives in center strip — hide from header in both layouts */
+.layout--vertical .turn-indicator   { display: none; }
+.layout--horizontal .turn-indicator { display: none; }
+
+/* ── Center strip: tile-only separator between the two zones ── */
+.layout--vertical .ejected-strip {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         4px 0;
+  flex-shrink:     0;
+}
+
+/* Tile in center strip */
+.layout--vertical .ejected-strip .center-tile-wrap .tile,
+.layout--vertical .ejected-strip .center-tile-ghost {
+  width:         74px;
+  height:        74px;
+  font-size:     2.2rem;
+  border-radius: 12px;
+}
+
+/* ── Zone labels: player info sticking to their zone's push buttons ── */
+.zone-label {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       4px 8px;
+  border-radius: 8px;
+  border:        1.5px solid transparent;
+  background:    rgba(255,255,255,0.02);
+  transition:    border-color 0.3s, background 0.3s;
+  width:         100%;
+  max-width:     calc(var(--tile) * 6 + var(--gap) * 5 + 30px);
+}
+.zone-label--p1.zone-label--cur {
+  border-color: var(--c-p1);
+  background:   rgba(225,29,72,0.1);
+}
+.zone-label--p2.zone-label--cur {
+  border-color: var(--c-p2);
+  background:   rgba(5,150,105,0.1);
+}
+
+/* Shared label content styles (reused for both zone-label and any estrip-row) */
+.estrip-dot {
+  width:         8px;
+  height:        8px;
+  border-radius: 50%;
+  flex-shrink:   0;
+}
+.estrip-name {
+  flex:          1;
+  font-size:     0.75rem;
+  font-weight:   700;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+  min-width:     0;
+}
+.estrip-name--p1 { color: #fb7185; }
+.estrip-name--p2 { color: #34d399; }
+.estrip-score {
+  font-size:   0.65rem;
+  color:       #94a3b8;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.estrip-ability {
+  font-size:     1.2rem;
+  line-height:   1;
+  padding:       2px 6px;
+  background:    rgba(255,255,255,0.06);
+  border:        1px solid #334155;
+  border-radius: 7px;
+  cursor:        pointer;
+  flex-shrink:   0;
+  transition:    background 0.2s, border-color 0.2s, transform 0.1s;
+}
+.estrip-ability:not(:disabled):hover { background: rgba(255,255,255,0.12); transform: scale(1.1); }
+.estrip-ability:disabled { opacity: 0.3; cursor: default; }
+.estrip-ability--on {
+  background:   rgba(251,191,36,0.18);
+  border-color: #fbbf24;
+  box-shadow:   0 0 8px rgba(251,191,36,0.4);
+}
+
+/* ── P2 board: board top, push↑ at bottom ── */
+.layout--vertical .player-zone--p2 .board           { order: 1; flex-direction: column-reverse; }
+.layout--vertical .player-zone--p2 .coord-col-row   { order: 2; }
+.layout--vertical .player-zone--p2 .board-push-row  { order: 3; }
+
+/* ── Vertical: col-row hidden — letters live on push buttons instead ── */
+.layout--vertical .coord-col-row { display: none; }
+
+/* ── P1 board: push↓ bubbles to top so zone-label sits directly above it ── */
+.layout--vertical .player-zone--p1 .board-push-row { order: -1; }
+
+/* ── PvP mode: rotate P2 row-numbers & push-btn content so P2 can read from the top ── */
+.mode--pvp.layout--vertical .player-zone--p2 .coord-row-label {
+  transform: rotate(180deg);
+}
+
+/* Ghost for reversed P2 board: starts at visual top (ejection side) and flies upward */
+.layout--vertical .player-zone--p2 .eject-ghost-tile {
+  top: 0;
+  animation: eject-fly-up 0.6s cubic-bezier(0.3, 0, 0.55, 1) forwards;
+}
+
+@keyframes eject-fly-up {
+  0%   { transform: translateY(0);                                        opacity: 1; }
+  40%  { transform: translateY(calc(-0.4 * (var(--tile) + var(--gap)))); opacity: 0.9; }
+  100% { transform: translateY(calc(-1.1 * (var(--tile) + var(--gap)))); opacity: 0; }
+}
+
+/* AI-on state in mobile menu */
+.mobile-menu-item--ai-on { color: #34d399; }
+
 @media (max-width: 700px) {
-  /* Header — compact */
-  .game-header { padding: 6px 10px; }
-  .game-header h1 { font-size: 0.95rem; letter-spacing: 1px; }
-  .header-right { gap: 5px; }
+  /* (legacy compact tweaks still useful if manually switched to horizontal) */
   .btn-layout-label { display: none; }
-  .turn-indicator { font-size: 0.65rem; padding: 3px 8px; }
   .btn-sm { font-size: 0.75rem; padding: 4px 8px; }
   .btn-lang { padding: 2px 5px; font-size: 0.62rem; }
 
