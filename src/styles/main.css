@@ -1520,6 +1520,22 @@ body {
 .ability-pop-enter-from    { opacity: 0; transform: scale(0.6) translateY(6px); }
 .ability-pop-leave-to      { opacity: 0; transform: scale(0.8); }
 
+/* ── Reward modal — compact cards on mobile vertical ── */
+.layout--vertical .reward-box {
+  padding:  20px 16px;
+}
+.layout--vertical .reward-cards {
+  gap: 8px;
+}
+.layout--vertical .reward-card {
+  width:  82px;
+  height: 116px;
+}
+.layout--vertical .reward-card-q    { font-size: 1.8rem; }
+.layout--vertical .reward-card-icon { font-size: 1.5rem; }
+.layout--vertical .reward-card-name { font-size: 0.62rem; }
+.layout--vertical .reward-card-desc { font-size: 0.54rem; line-height: 1.3; }
+
 /* ── Reward skip button ── */
 .btn-skip-reward {
   align-self: center;
@@ -1826,6 +1842,13 @@ body {
 .mode--pvp.layout--vertical .player-zone--p2 .coord-row-label {
   transform: rotate(180deg);
 }
+/* P2's own info strip — readable from P2's side */
+.mode--pvp.layout--vertical .zone-label--p2 {
+  transform: rotate(180deg);
+}
+
+/* Wrapper used to rotate any modal box toward P2 in PvP vertical */
+.pvp-p2-rotate { transform: rotate(180deg); }
 
 /* Ghost for reversed P2 board: starts at visual top (ejection side) and flies upward */
 .layout--vertical .player-zone--p2 .eject-ghost-tile {

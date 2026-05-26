@@ -43,6 +43,9 @@ const p2DisplayName = computed(() =>
   aiEnabled.value ? `🤖 ${playerNames.P2}` : playerNames.P2
 )
 
+// True when two humans are playing face-to-face on one phone (vertical layout, no AI)
+const isPvpVertical = computed(() => layout.value === 'vertical' && !aiEnabled.value)
+
 const turnLabel = computed(() =>
   game.value?.currentPlayer === 'P1' ? playerNames.P1 : p2DisplayName.value
 )
@@ -233,6 +236,7 @@ function isAbilityActiveFor(id: PlayerId): boolean {
         v-if="game?.pendingReward"
         :player="game.pendingReward"
         :player-name="game.pendingReward === 'P2' ? p2DisplayName : playerNames.P1"
+        :flip-for-p2="isPvpVertical && game.pendingReward === 'P2'"
         @claim="onRewardClaim"
         @skip="onRewardSkip"
       />
@@ -241,15 +245,17 @@ function isAbilityActiveFor(id: PlayerId): boolean {
     <!-- ── Winner Modal ── -->
     <Transition name="modal">
       <div v-if="game?.winner" class="modal-overlay" @click.self="null">
-        <div class="modal-box" :class="`modal--${game.winner.toLowerCase()}`">
-          <div class="modal-trophy">🏆</div>
-          <div class="modal-winner-name" :class="`text--${game.winner.toLowerCase()}`">
-            {{ game.winner === 'P1' ? playerNames.P1 : p2DisplayName }}
-          </div>
-          <p class="modal-subtitle">{{ t.wonGame }}</p>
-          <div class="modal-done-cols">{{ t.completedCols(doneCount(game.winner)) }}</div>
-          <div class="modal-actions">
-            <button class="btn-main" @click="resetToSetup">{{ t.homeBtn }}</button>
+        <div :class="{ 'pvp-p2-rotate': isPvpVertical && game.winner === 'P2' }">
+          <div class="modal-box" :class="`modal--${game.winner.toLowerCase()}`">
+            <div class="modal-trophy">🏆</div>
+            <div class="modal-winner-name" :class="`text--${game.winner.toLowerCase()}`">
+              {{ game.winner === 'P1' ? playerNames.P1 : p2DisplayName }}
+            </div>
+            <p class="modal-subtitle">{{ t.wonGame }}</p>
+            <div class="modal-done-cols">{{ t.completedCols(doneCount(game.winner)) }}</div>
+            <div class="modal-actions">
+              <button class="btn-main" @click="resetToSetup">{{ t.homeBtn }}</button>
+            </div>
           </div>
         </div>
       </div>

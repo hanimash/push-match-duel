@@ -5,7 +5,7 @@ import type { AbilityId } from '../game/abilities'
 import type { PlayerId } from '../game/types'
 import { t } from '../i18n'
 
-const props = defineProps<{ player: PlayerId; playerName: string }>()
+const props = defineProps<{ player: PlayerId; playerName: string; flipForP2?: boolean }>()
 
 const emit = defineEmits<{
   claim: [AbilityId]
@@ -27,6 +27,7 @@ function onCardClick(i: number) {
 
 <template>
   <div class="reward-overlay">
+    <div :class="{ 'pvp-p2-rotate': flipForP2 }">
     <div class="reward-box" :class="`reward-box--${player.toLowerCase()}`">
 
       <div class="reward-header">
@@ -65,6 +66,7 @@ function onCardClick(i: number) {
       </div>
 
       <button class="btn-skip-reward" @click="emit('skip')">{{ t.skipBtn }}</button>
+    </div>
     </div>
   </div>
 </template>
